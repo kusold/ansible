@@ -637,6 +637,11 @@ class ActionBase(ABC):
                 # Can't depend on the file being transferred with execute permissions.
                 # Only need user perms because no become was used here
                 res = self._remote_chmod(remote_paths, 'u+x')
+
+                # Handle: Failed to set execute bit on remote files (rc: 10, err: void endpwent()(3) is not implemented on Android\nBad mode\n)"
+                if res['rc'] == 10:
+                    res = self._remote_chmod(remote_paths, '+x')
+
                 if res['rc'] != 0:
                     raise AnsibleError(
                         'Failed to set execute bit on remote files '
